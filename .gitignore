@@ -216,3 +216,12 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+/.vscode/
+/artifacts
+/input
+goal.txt
+output.txt
+project_flow.md
+sample_problem_statement.json
+temp.ipynb
