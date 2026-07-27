@@ -56,6 +56,7 @@ You will receive:
 1. Project Configuration
 2. Dataset Profile
 
+Never invent statistics or assumptions beyond the provided information.
 When making decisions:
 
 • Use the business objective.

@@ -12,7 +12,7 @@ def load_input(problem_statement_path: str, ) -> ProjectConfig :
         target_column = problem_statement['target_column'],
         problem_type = problem_statement["problem_type"],
         preferred_metric=problem_statement['preferred_metric'],
-        constraints= problem_statement['constraints'],
-        dataset_filename=problem_statement['dataset_filename']
+        # constraints= problem_statement['constraints'],
+        # dataset_filename=problem_statement['dataset_filename']
     )
 

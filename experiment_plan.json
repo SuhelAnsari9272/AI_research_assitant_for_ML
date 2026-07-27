@@ -1,0 +1,46 @@
+{
+    "preprocessing": {
+        "missing_value_strategy": [
+            "mean_imputation",
+            "median_imputation"
+        ],
+        "encoding_strategy": [
+            "one_hot_encoding",
+            "label_encoding"
+        ],
+        "scaling_required": true,
+        "feature_selection_required": true,
+        "remove_identifier_columns": true
+    },
+    "models": [
+        {
+            "model_name": "logistic_regression",
+            "reason": "simple and interpretable",
+            "priority": 1
+        },
+        {
+            "model_name": "random_forest",
+            "reason": "handles high cardinality features",
+            "priority": 2
+        },
+        {
+            "model_name": "gradient_boosting",
+            "reason": "handles complex interactions",
+            "priority": 3
+        }
+    ],
+    "evaluation": {
+        "primary_metric": "f1",
+        "secondary_metrics": [
+            "accuracy",
+            "precision",
+            "recall"
+        ],
+        "validation_strategy": "stratified_k_fold"
+    },
+    "risks": [
+        "class_imbalance",
+        "high_cardinality_features",
+        "missing_values"
+    ]
+}

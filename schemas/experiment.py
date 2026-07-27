@@ -63,14 +63,7 @@ class ModelRecommendation(BaseModel):
 
     model_name: ModelName
     reason: str
-    priority: int
-
-class ExecutionStep(BaseModel):
-
-    step_number: int
-    step_name: str
-    responsible_agent: str
-    description: str
+    priority: int  
 
 
 class ExperimentPlan(BaseModel):
@@ -78,7 +71,6 @@ class ExperimentPlan(BaseModel):
     preprocessing: PreprocessingPlan
     models: list[ModelRecommendation]
     evaluation: EvaluationPlan
-    execution_steps: list[ExecutionStep]
     risks: list[str]
     # approval: ApprovalCheckpoint
 

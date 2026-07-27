@@ -1,6 +1,6 @@
 from langgraph.graph import StateGraph, START, END
-from state import State
-from nodes import planner, input_loader, input_dataset, data_profiler
+from src.state import State
+from src.nodes import planner, input_loader, input_dataset, data_profiler
 
 def create_workflow_graph()  :
 

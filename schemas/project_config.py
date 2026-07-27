@@ -9,8 +9,8 @@ class ProjectConfig(BaseModel):
     project_name: str
     objective: str
     target_column: str
-    problem_type: ProblemType
-    preferred_metric: str | None = None
-    constraints: dict = {}
-    dataset_filename :str
+    problem_type: str
+    preferred_metric: str #str | None = None
+    # constraints: dict = {}
+    # dataset_filename :str
 

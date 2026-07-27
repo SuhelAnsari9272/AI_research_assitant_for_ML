@@ -1,10 +1,11 @@
 
 import pandas as pd
 import json
-from graph import create_workflow_graph
+from src.graph import create_workflow_graph
 from utils import save_graph
 from groq import BadRequestError
 import json
+from utils import to_jsonable
 
 try:
 
@@ -22,35 +23,17 @@ except BadRequestError as e:
     raise
 
 
-print(result["experiment_plan"])
+# print(result["experiment_plan"])
+# print(result)
 
+### see results 
 
+plan = result["experiment_plan"].model_dump()
 
+with open("experiment_plan.json", "w") as f:
+    json.dump(plan, f, indent=4)
 
-# # print(experiment_plan)
-# print("********************************************")
-# print(experiment_plan.problem_summary)
+data_profile = result["dataset_profile"].model_dump()
 
-# print("------------------------------")
-
-# print(experiment_plan.preprocessing)
-
-# print("------------------------------")
-
-# print(experiment_plan.models)
-
-# print("------------------------------")
-
-# print(experiment_plan.evaluation)
-
-# print("------------------------------")
-
-# print(experiment_plan.execution_steps)
-
-# print("------------------------------")
-
-# print(experiment_plan.risks)
-
-# print("------------------------------")
-
-# print(experiment_plan.approval)
+with open("data_profile.json", "w") as f:
+    json.dump(data_profile, f, indent=4)

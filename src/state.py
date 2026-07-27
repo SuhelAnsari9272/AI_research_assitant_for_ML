@@ -3,6 +3,7 @@ from typing import TypedDict
 from schemas.dataset_profile import DatasetProfile
 from schemas.experiment import ExperimentPlan
 from schemas.project_config import ProjectConfig
+from schemas.preprocessor import PreprocessingResult
 import pandas as pd
 
 class State(TypedDict):
@@ -14,6 +15,11 @@ class State(TypedDict):
     dataset_profile: DatasetProfile
 
     experiment_plan : ExperimentPlan
+
+    preprocessing_result : PreprocessingResult
+    
+    train_df : pd.DataFrame
+    test_df : pd.DataFrame
 
     # eda_output: dict
 
@@ -33,6 +39,8 @@ class AutoMLState(TypedDict):
     dataset_profile: DatasetProfile
 
     experiment_plan: ExperimentPlan
+
+    
 
     eda_report: dict
 

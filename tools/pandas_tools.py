@@ -1,4 +1,5 @@
 import pandas as pd
+from collections import defaultdict
 
 from schemas.dataset_profile import DatasetProfile
 from schemas.dataset_profile import GeneralProfile
@@ -10,33 +11,34 @@ from schemas.dataset_profile import HighCardinalityColumn
 from schemas.dataset_profile import ClassificationTargetProfile
 from schemas.dataset_profile import RegressionTargetProfile
 from schemas.project_config import ProjectConfig
+from schemas.dataset_profile import ColumnInfo
 
 
-def analyse_general(dataset: pd.DataFrame) -> GeneralProfile:
-    numerical_columns = (
-        dataset.select_dtypes(include=["number"])
-        .columns
-        .tolist()
-    )
+def analyse_general(dataset: pd.DataFrame, n_samples = 5) -> GeneralProfile:
+    columns_by_dtype = defaultdict(list)
 
-    categorical_columns = (
-        dataset.select_dtypes(include=["object", "category"])
-        .columns
-        .tolist()
-    )
-
-    datetime_columns = (
-        dataset.select_dtypes(include=["datetime", "datetimetz"])
-        .columns
-        .tolist()
-    )
+    for col in dataset.columns:
+        dtype = str(dataset[col].dtype)
+        samples = (
+            dataset[col]
+            .dropna()
+            .astype(str)
+            .drop_duplicates()
+            .head(n_samples)
+            .tolist()
+            )
+        
+        columns_by_dtype[dtype].append(
+            ColumnInfo(
+                column_name=col,
+                sample_values=samples,
+            )
+        )
 
     return GeneralProfile(
         n_rows=dataset.shape[0],
         n_cols =dataset.shape[1],
-        numerical_columns=numerical_columns,
-        categorical_columns=categorical_columns,
-        datetime_columns=datetime_columns,
+        columns_by_dtype=dict(columns_by_dtype)
     )
 
 def stats_analyse(dataset:pd.DataFrame, column : str) -> NumericalColumnStatistics:
@@ -72,13 +74,18 @@ def analyse_missing_info(dataset:pd.DataFrame) -> list[MissingValueInfo] :
      
      missing_columns = []
      for column in dataset.columns :
-        missing_columns.append(
-             MissingValueInfo(
-            column_name=column,
-            missing_count= dataset[column].isnull().sum(),
-            missing_percentage=round(dataset[column].isnull().mean() * 100, 2) 
+        
+        missing_count= dataset[column].isnull().sum()
+
+        if missing_count > 0 :
+
+            missing_columns.append(
+                MissingValueInfo(
+                column_name=column,
+                missing_count= dataset[column].isnull().sum(),
+                missing_percentage=round(dataset[column].isnull().mean() * 100, 2) 
+                )
             )
-        )
      
      return missing_columns
 
@@ -153,9 +160,10 @@ def analyse_quality(dataset : pd.DataFrame) -> QualityProfile :
             warnings.append(f"Almost {duplicate_percentage} % of rows are duplicate")
 
         if missing_columns :
-            warnings.append("Found some missing columns details :")
+            missing_warning = ["Found some missing columns details :"]
             for info in missing_columns :
-                warnings.append(f"  - Column : {info.column_name} | Missing Count :  {info.missing_count} | Missing % :  {info.missing_percentage}")
+                missing_warning.append(f"  Column : {info.column_name} | Missing Count :  {info.missing_count} | Missing % :  {info.missing_percentage}")
+            warnings.append(missing_warning)
         
         if constant_columns :
             warnings.append(f"Found {len(constant_columns)} constant columns : {constant_columns}")
@@ -164,10 +172,10 @@ def analyse_quality(dataset : pd.DataFrame) -> QualityProfile :
             warnings.append(f"Found {len(unique_identifier_columns)} Unique Identifier Columns : {unique_identifier_columns}")
 
         if high_cardinality_columns :
-            warnings.append(f"Found {len(high_cardinality_columns)} High Cardinality Columns ")
-
+            high_card_warning = [f"Found {len(high_cardinality_columns)} High Cardinality Columns "]
             for column in high_cardinality_columns :
-                warnings.append(f" - Column : {column.column_name} | unique_count : {column.unique_count} | unique_percentage : {column.unique_percentage}")
+                high_card_warning.append(f"  Column : {column.column_name} | unique_count : {column.unique_count} | unique_percentage : {column.unique_percentage}")
+            warnings.append(high_card_warning)
 
         if mostly_empty_columns :
             warnings.append(f"Found {len(mostly_empty_columns)} mostly empty columns . Columns : {mostly_empty_columns}")
@@ -236,16 +244,16 @@ def analyse_target(dataset :pd.DataFrame, project_config : ProjectConfig):
     problem_type =  project_config.problem_type
 
     if problem_type.lower() == "classification" :
-        target_profile = analyse_classification_target_profile(dataset, target_column)
+        target_detail = analyse_classification_target_profile(dataset, target_column)
 
 
     elif problem_type.lower() == "regression" : 
-        target_profile =  analyse_regression_target_profile(dataset, target_column)
+        target_detail =  analyse_regression_target_profile(dataset, target_column)
 
     else :
-        target_profile = None
+        target_detail = None
 
-    return target_profile
+    return target_detail
 
 def analyse_dataset(dataset: pd.DataFrame, project_config : ProjectConfig) -> DatasetProfile:
 

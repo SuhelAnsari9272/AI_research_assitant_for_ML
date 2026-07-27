@@ -1,0 +1,9 @@
+{
+    "dtype_overrides": {},
+    "ignored_columns": [],
+    "target_override": null,
+    "protected_columns": [],
+    "feature_roles": {},
+    "business_constraints": [],
+    "notes": ""
+}

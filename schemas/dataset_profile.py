@@ -48,15 +48,16 @@ class QualityProfile(BaseModel):
     high_cardinality_columns: list[HighCardinalityColumn]
 
     mostly_empty_columns: list[str]
-    warnings: list[str]
+    warnings: list = Field(default_factory=list)  # list[str]
 
+class ColumnInfo(BaseModel):
+    column_name: str
+    sample_values: list[str] = Field(default_factory=list)
 
 class GeneralProfile(BaseModel):
     n_rows :int
     n_cols : int
-    numerical_columns: List[str]
-    categorical_columns: List[str]
-    datetime_columns: List[str]
+    columns_by_dtype: dict[str, list[ColumnInfo]] = Field(default_factory=dict)
 
 class BaseTargetProfile(BaseModel):
 
@@ -85,4 +86,4 @@ class DatasetProfile(BaseModel):
     general: GeneralProfile
     statistics: StatisticsProfile
     quality: QualityProfile
-    target: BaseTargetProfile | None
+    target: ClassificationTargetProfile | RegressionTargetProfile | None

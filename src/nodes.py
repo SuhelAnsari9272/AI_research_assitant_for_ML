@@ -1,5 +1,5 @@
 
-from state import State
+from src.state import State
 from prompts import PLANNER_SYSTEM_PROMPT
 import pandas as pd
 import os
@@ -13,14 +13,20 @@ from tools.pandas_tools import analyse_dataset
 
 def input_loader(state :State):
 
-    problem_statement_path = state['problem_statement_path']
+    if state.get("project_config") is not None:
+        return {"project_config": state["project_config"]}
+
+    problem_statement_path = state["problem_statement_path"]
     project_config = load_input(problem_statement_path)
 
     return {"project_config" : project_config}
 
 def input_dataset(state:State):
 
-    dataset_filename = state['project_config'].dataset_filename
+    if state.get("dataset") is not None:
+        return {"dataset": state["dataset"]}
+
+    dataset_filename = state["project_config"].dataset_filename
     dataset = pd.read_csv(os.path.join("input", dataset_filename))
 
     return {"dataset" : dataset}
@@ -65,3 +71,8 @@ def planner(state:State):
 
     return {'experiment_plan' : experiment_plan }
 
+def preprocessor(state : State) :
+
+    missing_columns = state['dataset_profile'].quality.missing_columns 
+    # handling Missing values 
+    pass
