@@ -1,6 +1,21 @@
 import streamlit as st
 from typing import Any, Dict, List
 
+from dotenv import load_dotenv
+from pydantic import BaseModel, Field
+from enum import Enum
+
+class ProblemType(str, Enum):
+    CLASSIFICATION = "Classification"
+    REGRESSION = "Regression"
+
+
+class ProjectConfig(BaseModel):
+    project_name: str = ""
+    problem_type: ProblemType = ProblemType.CLASSIFICATION
+    target_column: str = ""
+    evaluation_metric: str = ""
+    business_goal: str = ""
 
 
 WORKFLOW_STEPS: List[str] = [
