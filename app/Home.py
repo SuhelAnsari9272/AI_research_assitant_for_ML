@@ -1,35 +1,56 @@
+from __future__ import annotations
 import streamlit as st
-from state import initialize
-from components.sidebar import render_sidebar
+from components.sidebar import render as render_sidebar
+from schemas.state import init_session_state
 
-initialize()
 
 st.set_page_config(
-    page_title="AutoML Agent",
-    layout="wide"
+    page_title="Agentic AutoML Platform",
+    page_icon="🧬",
+    layout="wide",
+    initial_sidebar_state="expanded",
 )
 
-render_sidebar(current_page="Workspace overview")
-st.title("Agentic AutoML")
+init_session_state()
+render_sidebar()
+
+st.title("🧬 Agentic AutoML Platform")
+st.caption("A human-in-the-loop machine learning workbench — the AI reasons, you decide.")
 
 st.markdown(
-"""
-Use the workspace to move from project context to dataset evidence and an
-experiment plan that you can review before training.
-"""
+    """
+    <div class="aa-card">
+    <h4>How this platform works</h4>
+    <p style="color:#334155; font-size:0.92rem;">
+    At every stage the AI proposes a decision — a data type, a preprocessing step, a model,
+    a metric — and shows you <b>why</b>: the evidence it used, its confidence, the alternatives
+    it considered, and the risks involved. Nothing advances to the next stage until you
+    explicitly click <b>Approve</b>, and you can always override the AI's recommendation first.
+    </p>
+    </div>
+    """,
+    unsafe_allow_html=True,
 )
 
-config = st.session_state.project_config
-dataset = st.session_state.dataset
-profile = st.session_state.dataset_profile
-plan = st.session_state.experiment_plan
+st.write("")
+cols = st.columns(4)
+stage_blurbs = [
+    ("1️⃣ Project & Dataset", "Define the problem and upload your data."),
+    ("2️⃣ Dataset Profile", "Inspect every feature: type, stats, risks."),
+    ("3️⃣–5️⃣ Planning", "Approve the experiment, preprocessing & feature plans."),
+    ("6️⃣–9️⃣ Train & Ship", "Train, evaluate, and deploy — with sign-off at each step."),
+]
+for c, (title, blurb) in zip(cols, stage_blurbs):
+    with c:
+        st.markdown(
+            f'<div class="aa-card" style="min-height:120px;"><h4>{title}</h4>'
+            f'<p style="font-size:0.85rem;color:#475569;">{blurb}</p></div>',
+            unsafe_allow_html=True,
+        )
 
-st.divider()
-st.subheader("Workspace status")
-status = st.columns(4)
-status[0].metric("Project", "Ready" if config else "Not set")
-status[1].metric("Dataset", f"{len(dataset):,} rows" if dataset is not None else "Not uploaded")
-status[2].metric("Profile", "Ready" if profile else "Pending")
-status[3].metric("Plan", "Ready" if plan else "Available in artifacts")
-
-st.page_link("pages/1_Project.py", label="Open project setup")
+st.write("")
+if st.session_state.get("project_config") is None:
+    st.info("👉 Start in **1_Project** from the sidebar's Pages menu to configure your first project.")
+else:
+    pc = st.session_state["project_config"]
+    st.success(f"Active project: **{pc.project_name}** — continue where you left off using the sidebar.")
