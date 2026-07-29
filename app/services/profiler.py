@@ -27,7 +27,8 @@ from services.langgraph_client import get_client
 _EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 _URL_RE = re.compile(r"^(https?://|www\.)", re.IGNORECASE)
 _PHONE_RE = re.compile(r"^\+?[\d\-\(\) ]{7,15}$")
-_ID_NAME_RE = re.compile(r"(^id$|_id$|^id_|uuid|guid)", re.IGNORECASE)
+# _ID_NAME_RE = re.compile(r"(^id$|id$|^id_|_id$|uuid|guid)", re.IGNORECASE)
+_ID_NAME_RE = re.compile(r"(^id$|(^|[_-])id([_-]|$)|id$|uuid|guid)", re.IGNORECASE,)
 
 
 class DatasetProfilerService:
@@ -151,7 +152,7 @@ class DatasetProfilerService:
 		
 		sample_str = non_null.astype(str).head(50)
 
-		if _ID_NAME_RE.search(col) and unique_ratio > 0.9:
+		if _ID_NAME_RE.search(col) or unique_ratio > 0.9:  # and
 			evidence.append(f"Column name matches identifier pattern and {unique_ratio:.0%} of values are unique.")
 			return SemanticType.IDENTIFIER, evidence
 
@@ -193,7 +194,7 @@ class DatasetProfilerService:
 
 
 		if pd.api.types.is_numeric_dtype(series):
-			if unique_ratio > 0.95 and _ID_NAME_RE.search(col):
+			if unique_ratio > 0.95 and _ID_NAME_RE.search(col):  
 				evidence.append("High uniqueness with an identifier-like name.")
 				return SemanticType.IDENTIFIER, evidence
 			evidence.append(f"Numeric dtype with {non_null.nunique()} distinct values ({unique_ratio:.0%} unique).")
