@@ -69,3 +69,12 @@ def get_client() -> LangGraphClient:
     if _client is None:
         _client = LangGraphClient()
     return _client
+
+def generate_with_fallback(task_type: str, subject: str, context: Dict[str, Any], fallback: AIReasoning) -> AIReasoning:
+    """Convenience for call sites that already have a deterministic local
+    `AIReasoning` on hand (pages 5-8): try the live agent first, and use the
+    local one unchanged if the agent isn't configured or the call fails."""
+    try:
+        return get_client().generate_reasoning(task_type, subject, context)
+    except LangGraphUnavailable:
+        return fallback
