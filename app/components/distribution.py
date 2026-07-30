@@ -13,7 +13,7 @@ def render(series: pd.Series, feature: FeatureProfile) -> None:
     """Render the appropriate Plotly distribution chart for this feature."""
     st.markdown("##### Distribution")
 
-    if feature.semantic_type == SemanticType.NUMERICAL:
+    if (feature.semantic_type == SemanticType.INTEGER) | (feature.semantic_type == SemanticType.FLOAT):
         fig = plot_utils.numeric_distribution(series, title=f"{feature.name} — distribution")
     elif feature.semantic_type == SemanticType.DATETIME:
         fig = plot_utils.datetime_distribution(series, title=f"{feature.name} — records over time")

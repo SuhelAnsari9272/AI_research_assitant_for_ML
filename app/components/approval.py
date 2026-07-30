@@ -30,9 +30,9 @@ def render(
     if allow_override and override_note_key:
         with st.expander("✍️ Manual override / notes (optional)"):
             st.text_area(
-                "Describe any manual changes you're making to the AI's recommendation before approving.",
+                "Describe any manual changes you want to make. This can be taken under consideration while making Experiment plan and Preprocessing .",
                 key=override_note_key,
-                placeholder="e.g. Keep 'customer_region' as categorical instead of the suggested ordinal encoding...",
+                placeholder="e.g. Remove 'Cabin' Column as it has a large amount of missing values...",
             )
 
     col1, col2 = st.columns([1, 3])

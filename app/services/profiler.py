@@ -10,7 +10,6 @@ import warnings
 from scipy import stats as scipy_stats
 
 from schemas.dataset_profile import DatasetProfile
-	
 
 
 from schemas.feature_profile import (
@@ -81,7 +80,9 @@ class DatasetProfilerService:
 
 		semantic_type,  type_evidence = self._infer_semantic_type(series, col)
 		role = self._infer_role(col, target_column, semantic_type)
-		is_numeric = semantic_type in (SemanticType.NUMERICAL, SemanticType.BINARY) and pd.api.types.is_numeric_dtype(series)
+
+		is_numeric = (semantic_type in (SemanticType.INTEGER, SemanticType.FLOAT, SemanticType.BINARY, ) and pd.api.types.is_numeric_dtype(series)
+)
 
 		stats_dict = self._numeric_stats(series) if is_numeric else {}
 		outlier_count = self._count_outliers(series) if is_numeric else None
@@ -117,17 +118,22 @@ class DatasetProfilerService:
             suggested_dtype=self._suggest_dtype(semantic_type, series),
             role=role,
             leakage_risk=leakage_risk,
+
             unique_values=unique_values,
             cardinality_pct=cardinality_pct,
             missing_count=missing_count,
             missing_pct=missing_pct,
-            memory_usage_bytes=int(series.memory_usage(deep=True)),
+            # memory_usage_bytes=int(series.memory_usage(deep=True)),
+
             sample_values=[str(v) for v in series.dropna().head(5).tolist()],
             top_categories=top_categories,
+
             ai_observations=observations,
             recommended_transformations=transformations,
             potential_risks=risks,
+
             reasoning=reasoning,
+
             **stats_dict,
             outlier_count=outlier_count,
         )
@@ -203,7 +209,7 @@ class DatasetProfilerService:
 				evidence.append("Low cardinality relative to row count suggests an ordinal/categorical code.")
 				return SemanticType.ORDINAL,  evidence
 
-			return SemanticType.NUMERICAL,  evidence
+			return SemanticType.FLOAT, evidence
 
 		avg_len = sample_str.str.len().mean()
 		if non_null.nunique() > 50 and avg_len > 30:
@@ -223,8 +229,10 @@ class DatasetProfilerService:
 		return FeatureRole.FEATURE
 
 	def _suggest_dtype(self, semantic_type: SemanticType, series: pd.Series) -> str:
+
 		mapping = {
-			SemanticType.NUMERICAL: "float64",
+			SemanticType.INTEGER : 'int64',
+			SemanticType.FLOAT : 'float64',
 			SemanticType.CATEGORICAL: "category",
 			SemanticType.ORDINAL: "category",
 			SemanticType.BINARY: "category",
@@ -344,7 +352,7 @@ class DatasetProfilerService:
 				observations.append(f"{outlier_count} outliers detected via IQR rule ({pct}% of rows).")
 				transformations.append("Consider robust scaling or winsorization.")
 
-		if semantic_type == SemanticType.NUMERICAL:
+		if semantic_type == SemanticType.FLOAT:
 			transformations.append("Standard/MinMax scaling recommended before distance-based or linear models.")
 
 		return observations, transformations, risks
@@ -432,10 +440,10 @@ class DatasetProfilerService:
 		pool = [t.value for t in SemanticType if t != chosen and t != SemanticType.TARGET]
 		# Keep the two semantically closest-looking alternatives for a concise panel.
 		neighbors = {
-			SemanticType.NUMERICAL: [SemanticType.ORDINAL, SemanticType.IDENTIFIER],
+			SemanticType.INTEGER: [SemanticType.ORDINAL, SemanticType.IDENTIFIER],
 			SemanticType.CATEGORICAL: [SemanticType.ORDINAL, SemanticType.TEXT],
-			SemanticType.ORDINAL: [SemanticType.CATEGORICAL, SemanticType.NUMERICAL],
-			SemanticType.IDENTIFIER: [SemanticType.NUMERICAL, SemanticType.CATEGORICAL],
+			SemanticType.ORDINAL: [SemanticType.CATEGORICAL, SemanticType.INTEGER],
+			SemanticType.IDENTIFIER: [SemanticType.INTEGER, SemanticType.CATEGORICAL],
 			SemanticType.DATETIME: [SemanticType.TEXT, SemanticType.CATEGORICAL],
-		}.get(chosen, [SemanticType.CATEGORICAL, SemanticType.NUMERICAL])
+		}.get(chosen, [SemanticType.CATEGORICAL, SemanticType.INTEGER])
 		return [n.value for n in neighbors if n.value in pool]

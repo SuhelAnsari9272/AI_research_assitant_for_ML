@@ -8,7 +8,8 @@ from pydantic import BaseModel, Field
 class SemanticType(str, Enum):
     """AI-inferred semantic meaning of a column (richer than the pandas dtype)."""
 
-    NUMERICAL = "Numerical"
+    FLOAT = "Float"
+    INTEGER = "Integer"
     CATEGORICAL = "Categorical"
     ORDINAL = "Ordinal"
     BINARY = "Binary"
@@ -82,7 +83,7 @@ class FeatureProfile(BaseModel):
     kurtosis: Optional[float] = None
     outlier_count: Optional[int] = None
 
-    memory_usage_bytes: int
+    # memory_usage_bytes: int
 
     sample_values: List[str] = Field(default_factory=list)
     top_categories: List[TopCategory] = Field(default_factory=list)

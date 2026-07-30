@@ -78,18 +78,6 @@ llm_reasoning_cache = st.session_state.setdefault("feature_llm_reasoning", {})
 is_llm_backed = selected in llm_reasoning_cache
 current_reasoning = llm_reasoning_cache.get(selected, active_feature.reasoning)
 
-badge_col, button_col = st.columns([4, 1])
-with badge_col:
-    st.caption("🤖 Live AI reasoning" if is_llm_backed else "📐 Local heuristic reasoning")
-with button_col:
-    if llm_client.is_configured and st.button("🤖 Ask AI", key=f"llm_gen_{selected}", width="stretch"):
-        try:
-            with st.spinner(f"Asking Groq to reason about '{selected}'..."):
-                llm_reasoning_cache[selected] = profiler_service.generate_llm_reasoning(active_feature)
-            st.rerun()
-        except LangGraphUnavailable as exc:
-            st.error(f"AI reasoning call failed, showing local heuristic instead: {exc}")
-
 ai_observation.render(current_reasoning, key=f"feature_{selected}")
 
 def _on_revise(feedback: str) -> None:
@@ -97,7 +85,7 @@ def _on_revise(feedback: str) -> None:
     st.session_state["feature_llm_reasoning"][selected] = updated
 
 
-ai_revision.render(key=f"feature_{selected}", on_revise=_on_revise, subject_label=f"the `{selected}` classification")
+# ai_revision.render(key=f"feature_{selected}", on_revise=_on_revise, subject_label=f"the `{selected}` classification")
 
 # --------------------------------------------------------------------------- #
 # Approval checkpoint

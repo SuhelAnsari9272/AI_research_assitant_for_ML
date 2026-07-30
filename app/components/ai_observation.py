@@ -9,7 +9,7 @@ from schemas.feature_profile import AIReasoning
 def render(reasoning: AIReasoning, expanded: bool = False, key: str = "") -> None:
     """Render the AI Reasoning expander for a single decision."""
 
-    with st.expander(f"🧠 AI Reasoning -", expanded=expanded):
+    with st.expander(f"🧠 Reasoning -", expanded=expanded):
         st.markdown(f"**Why**  \n{reasoning.summary}")
 
         cols = st.columns(2)

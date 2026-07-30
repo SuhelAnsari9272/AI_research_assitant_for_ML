@@ -5,6 +5,10 @@ from typing import Any, Dict, Optional
 
 from schemas.feature_profile import AIReasoning
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 class LangGraphUnavailable(RuntimeError):
     "Raised whenever the Groq/LangGraph agent can't be used right now;"
 
@@ -16,6 +20,7 @@ class LangGraphClient:
 
     @property
     def is_configured(self) -> bool:
+        # print(os.environ.get("GROQ_API_KEY"))
         return bool(os.environ.get("GROQ_API_KEY"))
 
     def _get_graph(self):
@@ -42,7 +47,6 @@ class LangGraphClient:
         task_type: str,
         subject: str,
         context: Dict[str, Any],
-        previous: AIReasoning,
         feedback: str,
     ) -> AIReasoning:
         """Re-invoke the agent with the data scientist's feedback on `previous`."""
@@ -52,7 +56,7 @@ class LangGraphClient:
                 "task_type": task_type,
                 "subject": subject,
                 "context": context,
-                "previous_reasoning": previous.model_dump(),
+                # "previous_reasoning": previous.model_dump(),
                 "user_feedback": feedback,
             })
             return AIReasoning(**result["final_reasoning"].model_dump())
